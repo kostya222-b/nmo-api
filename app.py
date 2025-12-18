@@ -1,6 +1,3 @@
-# Создаём файл app.py с кодом Flask-приложения для работы с SQLite
-
-app_py_content = """
 from flask import Flask, jsonify, request
 import sqlite3
 import json
@@ -13,8 +10,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# Инициализация базы данных
-@app.before_first_request
+# Функция инициализации базы данных
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -38,6 +34,9 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
+
+# Вызов функции инициализации базы данных
+init_db()
 
 # Добавление нового вопроса
 @app.route('/api/questions', methods=['POST'])
@@ -73,7 +72,7 @@ def get_questions():
 def get_questions_by_topic(topic_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM questions WHERE json_extract(topics, '$[0]') = ?', (str(topic_id),))
+    cursor.execute('SELECT * FROM questions WHERE json_extract(topics, "$[0]") = ?', (str(topic_id),))
     questions = cursor.fetchall()
     conn.close()
     return jsonify([dict(question) for question in questions])
@@ -109,9 +108,3 @@ def get_topics():
 
 if __name__ == '__main__':
     app.run(debug=True)
-"""
-
-with open('app.py', 'w', encoding='utf-8') as file:
-    file.write(app_py_content)
-
-'Файл app.py создан.'
